@@ -1,0 +1,10 @@
+^C:\NIXIANG\WIN32\WIN32\CMAKELISTS.TXT
+setlocal
+C:\Qt\Tools\CMake_64\bin\cmake.exe -SC:/nixiang/win32/win32 -BC:/nixiang/win32/win32/build --check-stamp-file C:/nixiang/win32/win32/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

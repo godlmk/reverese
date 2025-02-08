@@ -1,0 +1,5 @@
+﻿  hello.cpp
+C:\nixiang\hello\hello\hello.cpp(5,17): error C2485: “__declspec(标识符)”不是可识别的扩展属性
+C:\nixiang\hello\hello\hello.cpp(7,2): error C4235: 使用了非标准扩展: 不支持在此结构上使用“__asm”关键字
+C:\nixiang\hello\hello\hello.cpp(9,3): error C2065: “ret”: 未声明的标识符
+C:\nixiang\hello\hello\hello.cpp(10,2): error C2143: 语法错误: 缺少“;”(在“}”的前面)

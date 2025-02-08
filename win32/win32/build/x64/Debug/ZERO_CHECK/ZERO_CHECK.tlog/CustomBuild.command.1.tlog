@@ -1,0 +1,10 @@
+^C:\NIXIANG\WIN32\WIN32\BUILD\CMAKEFILES\60CF68E8FCD8854C0DE0DD448EB56F6F\GENERATE.STAMP.RULE
+setlocal
+C:\Qt\Tools\CMake_64\bin\cmake.exe -SC:/nixiang/win32/win32 -BC:/nixiang/win32/win32/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/nixiang/win32/win32/build/win32.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

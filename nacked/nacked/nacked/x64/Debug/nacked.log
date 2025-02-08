@@ -1,0 +1,38 @@
+﻿  main.cpp
+C:\nixiang\nacked\nacked\main.cpp(2,16): error C2485: “__declspec(标识符)”不是可识别的扩展属性
+C:\nixiang\nacked\nacked\main.cpp(3,2): error C4235: 使用了非标准扩展: 不支持在此结构上使用“__asm”关键字
+C:\nixiang\nacked\nacked\main.cpp(4,3): error C2065: “push”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(4,8): error C2146: 语法错误: 缺少“;”(在标识符“ebp”的前面)
+C:\nixiang\nacked\nacked\main.cpp(4,8): error C2065: “ebp”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(5,3): error C2146: 语法错误: 缺少“;”(在标识符“mov”的前面)
+C:\nixiang\nacked\nacked\main.cpp(5,3): error C2065: “mov”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(5,7): error C2146: 语法错误: 缺少“;”(在标识符“ebp”的前面)
+C:\nixiang\nacked\nacked\main.cpp(5,7): error C2065: “ebp”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(5,12): error C2065: “esp”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(6,3): error C2146: 语法错误: 缺少“;”(在标识符“sub”的前面)
+C:\nixiang\nacked\nacked\main.cpp(6,3): error C2065: “sub”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(6,7): error C2146: 语法错误: 缺少“;”(在标识符“esp”的前面)
+C:\nixiang\nacked\nacked\main.cpp(6,7): error C2065: “esp”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(7,3): error C2146: 语法错误: 缺少“;”(在标识符“push”的前面)
+C:\nixiang\nacked\nacked\main.cpp(7,3): error C2065: “push”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(7,8): error C2146: 语法错误: 缺少“;”(在标识符“ebx”的前面)
+C:\nixiang\nacked\nacked\main.cpp(7,8): error C2065: “ebx”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(8,3): error C2146: 语法错误: 缺少“;”(在标识符“push”的前面)
+C:\nixiang\nacked\nacked\main.cpp(8,3): error C2065: “push”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(8,8): error C2146: 语法错误: 缺少“;”(在标识符“esi”的前面)
+C:\nixiang\nacked\nacked\main.cpp(8,8): error C2065: “esi”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(9,3): error C2146: 语法错误: 缺少“;”(在标识符“push”的前面)
+C:\nixiang\nacked\nacked\main.cpp(9,3): error C2065: “push”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(9,8): error C2146: 语法错误: 缺少“;”(在标识符“edi”的前面)
+C:\nixiang\nacked\nacked\main.cpp(9,8): error C2065: “edi”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(10,3): error C2146: 语法错误: 缺少“;”(在标识符“lea”的前面)
+C:\nixiang\nacked\nacked\main.cpp(10,3): error C2065: “lea”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(10,7): error C2146: 语法错误: 缺少“;”(在标识符“edi”的前面)
+C:\nixiang\nacked\nacked\main.cpp(10,7): error C2065: “edi”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(10,12): error C2065: “dword”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(10,18): error C2146: 语法错误: 缺少“;”(在标识符“ptr”的前面)
+C:\nixiang\nacked\nacked\main.cpp(10,18): error C2065: “ptr”: 未声明的标识符
+C:\nixiang\nacked\nacked\main.cpp(10,22): error C2146: 语法错误: 缺少“;”(在标识符“ds”的前面)
+C:\nixiang\nacked\nacked\main.cpp(10,28): error C2337: “ebp”: 未找到特性
+C:\nixiang\nacked\nacked\main.cpp(10,32): error C2143: 语法错误: 缺少“]”(在“-”的前面)
+C:\nixiang\nacked\nacked\main.cpp(10,32): error C2059: 语法错误:“-”
