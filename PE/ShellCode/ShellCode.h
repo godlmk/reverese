@@ -11,6 +11,10 @@
 #include <print>
 #include <stdio.h>
 #include <cassert>
+int Align(int origin, int alignment)
+{
+	return (origin / alignment - 1) * alignment;
+}
 
 PIMAGE_DOS_HEADER GetDosHeader(LPVOID pImageBuffer)
 {
@@ -152,11 +156,11 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	free(pFileBuffer);
 	return true;
 }
-DWORD Rva2FileOffset(IN LPVOID pFileBuffer, IN DWORD Rva)
+DWORD Rva2FileOffset(IN LPVOID pMemoryBuffer, IN DWORD Rva)
 {
-	auto const dosHeader = GetDosHeader(pFileBuffer);
+	auto const dosHeader = GetDosHeader(pMemoryBuffer);
 	if (dosHeader == NULL) return -1;
-	auto const ntHeader = GetNTHeader(pFileBuffer, dosHeader);
+	auto const ntHeader = GetNTHeader(pMemoryBuffer, dosHeader);
 	if (ntHeader == NULL) return -1;
 	auto const optionalHeader = &ntHeader->OptionalHeader;
 	// 如果偏移量还在头部，那么直接返回即可
