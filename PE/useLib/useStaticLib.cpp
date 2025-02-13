@@ -23,10 +23,17 @@ int main()
 {
 	std::cout << "Hello World!\n";
 	lpAdd myadd;
-	HMODULE hMoudle = LoadLibraryW(L"C:/reverse/PE/useLib/dynamicLib/MyDll.dll");
+	HMODULE hMoudle = LoadLibraryW(L"C:/reverse/PE/useLib/dynamicLib/defExport.dll");
+	if (hMoudle == NULL)
+	{
+		std::println("LoadLibrary failed");
+		return -1;
+	}
+	std::println("LoadLibrary success, id is {:d}", (int)hMoudle);
 	myadd = (lpAdd)GetProcAddress(hMoudle, "Add");
 	int sum = myadd(3, 4);
 	std::println("{}", sum);
+	FreeLibrary(hMoudle);
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
