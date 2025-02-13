@@ -7,7 +7,6 @@
 
 // TODO: 在此处引用程序需要的其他标头。
 #include <windows.h>
-#include <winnt.h>
 #include <print>
 #include <stdio.h>
 #include <cassert>
@@ -20,7 +19,7 @@ PIMAGE_DOS_HEADER GetDosHeader(LPVOID pImageBuffer)
 {
 	PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)pImageBuffer;
 	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
-		std::print("Invalid DOS signature\n");
+		std::println("Invalid DOS signature");
 		return NULL;
 	}
 	return dosHeader;
@@ -29,7 +28,7 @@ PIMAGE_NT_HEADERS GetNTHeader(LPVOID pImageBuffer, PIMAGE_DOS_HEADER dosHeader)
 {
 	const PIMAGE_NT_HEADERS ntHeader = (PIMAGE_NT_HEADERS)((DWORD)pImageBuffer + dosHeader->e_lfanew);
 	if (ntHeader->Signature != IMAGE_NT_SIGNATURE) {
-		std::print("Invalid NT signature\n");
+		std::println("Invalid NT signature");
 		return NULL;
 	}
 	return ntHeader;
@@ -38,7 +37,7 @@ unsigned char* ReadPEFile(const char* filename) {
 	FILE* fp = fopen(filename, "rb");
 	if (fp == NULL)
 	{
-		std::cout << "fopen failed" << '\n';
+		std::println("fread failed, because:{}", strerror(errno));
 		exit(-1);
 	}
 	fseek(fp, 0, SEEK_END);
@@ -46,11 +45,13 @@ unsigned char* ReadPEFile(const char* filename) {
 	fseek(fp, 0, SEEK_SET);
 	unsigned char* buffer = (unsigned char*)malloc(bytes);
 	if (!buffer) {
+		std::println("malloc failed, because:{}", strerror(errno));
 		fclose(fp);
 		exit(-1);
 	}
 	int ret = fread(buffer, bytes, 1, fp);
 	if (ret != 1) {
+		std::println("fread failed, because:{}", strerror(errno));
 		free(buffer);
 		fclose(fp);
 		exit(-1);
@@ -64,13 +65,13 @@ PBYTE ImageFile2Memory(const char* filename) {
 	PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)buffer;
 	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
 		free(buffer);
-		std::print("Invalid DOS signature\n");
+		std::println("Invalid DOS signature\n");
 		return NULL;
 	}
 	const PIMAGE_NT_HEADERS const ntHeader = (PIMAGE_NT_HEADERS)(buffer + dosHeader->e_lfanew);
 	if (ntHeader->Signature != IMAGE_NT_SIGNATURE) {
 		free(buffer);
-		std::print("Invalid NT signature\n");
+		std::println("Invalid NT signature\n");
 		return NULL;
 	}
 	const PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
@@ -81,7 +82,7 @@ PBYTE ImageFile2Memory(const char* filename) {
 	PBYTE const ImageBuffer = (PBYTE)malloc(ImageSize);
 	if (!ImageBuffer) {
 		free(buffer);
-		std::print("malloc failed\n");
+		std::println("malloc failed, because:{}", strerror(errno));
 		return NULL;
 	}
 	memset(ImageBuffer, 0, ImageSize);
@@ -109,7 +110,7 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	}
 	const PIMAGE_NT_HEADERS const ntHeader = (PIMAGE_NT_HEADERS)((DWORD)pMemBuffer + dosHeader->e_lfanew);
 	if (ntHeader->Signature != IMAGE_NT_SIGNATURE) {
-		std::print("Invalid NT signature\n");
+		std::println("Invalid NT signature");
 		return false;
 	}
 	const PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
@@ -128,7 +129,7 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	}
 	PBYTE pFileBuffer = (PBYTE)malloc(fileSize);
 	if (!pFileBuffer) {
-		std::println("malloc failed");
+		std::println("malloc failed, because:{}", strerror(errno));
 		return false;
 	}
 	memset(pFileBuffer, 0, fileSize);
@@ -143,12 +144,12 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	}
 	FILE* fp = fopen(destPath, "wb");
 	if (!fp) {
-		std::println("open file fail");
+		std::println("fopen failed, because:{}", strerror(errno));
 		return false;
 	}
 	size_t ret = fwrite(pFileBuffer, fileSize, 1, fp);
 	if (ret != 1) {
-		std::println("fwrite fail");
+		std::println("fwrite failed, because:{}", strerror(errno));
 		fclose(fp);
 		return false;
 	}
