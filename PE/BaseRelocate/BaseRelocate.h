@@ -1,13 +1,12 @@
-﻿// ShellCode.h: 标准系统包含文件的包含文件
+﻿// BaseRelocate.h: 标准系统包含文件的包含文件
 // 或项目特定的包含文件。
 
 #pragma once
 
-// TODO: 在此处引用程序需要的其他标头。
-#include <windows.h>
+#include <cassert>
 #include <print>
 #include <stdio.h>
-#include <cassert>
+#include <windows.h>
 int Align(int origin, int alignment)
 {
 	return (origin / alignment - 1) * alignment;
@@ -31,6 +30,7 @@ PIMAGE_NT_HEADERS GetNTHeader(LPVOID pImageBuffer, PIMAGE_DOS_HEADER dosHeader)
 	}
 	return ntHeader;
 }
+
 unsigned char* ReadFileBuffer(const char* filename) {
 	FILE* fp = fopen(filename, "rb");
 	if (fp == NULL)
@@ -63,16 +63,16 @@ PBYTE ReadMemoryImage(const char* filename) {
 	PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)buffer;
 	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
 		free(buffer);
-		std::println("Invalid DOS signature\n");
+		std::println("Invalid DOS signature");
 		return NULL;
 	}
-	const PIMAGE_NT_HEADERS const ntHeader = (PIMAGE_NT_HEADERS)(buffer + dosHeader->e_lfanew);
+	PIMAGE_NT_HEADERS const ntHeader = (PIMAGE_NT_HEADERS)(buffer + dosHeader->e_lfanew);
 	if (ntHeader->Signature != IMAGE_NT_SIGNATURE) {
 		free(buffer);
-		std::println("Invalid NT signature\n");
+		std::println("Invalid NT signature");
 		return NULL;
 	}
-	const PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
+	PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
 		+ sizeof(ntHeader->Signature)
 		+ sizeof(ntHeader->FileHeader));// ntHeader->OptionalHeader;
 	assert(optionalHeader == &ntHeader->OptionalHeader, "optionalHeader != ntHeader->OptionalHeader");
@@ -88,7 +88,7 @@ PBYTE ReadMemoryImage(const char* filename) {
 	const DWORD sizeOfHeaderAndSection = optionalHeader->SizeOfHeaders;
 	memcpy(ImageBuffer, buffer, sizeOfHeaderAndSection);
 	// 拷贝每一节的数据到应该在的位置
-	const PIMAGE_SECTION_HEADER const firstSection = IMAGE_FIRST_SECTION(ntHeader);
+	PIMAGE_SECTION_HEADER const firstSection = IMAGE_FIRST_SECTION(ntHeader);
 	const int sectionCount = ntHeader->FileHeader.NumberOfSections;
 	for (int i = 0; i < sectionCount; ++i) {
 		PIMAGE_SECTION_HEADER curSection = firstSection + i;
@@ -101,17 +101,17 @@ PBYTE ReadMemoryImage(const char* filename) {
 	return ImageBuffer;
 }
 bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
-	const PIMAGE_DOS_HEADER const dosHeader = (PIMAGE_DOS_HEADER)pMemBuffer;
+	PIMAGE_DOS_HEADER const dosHeader = (PIMAGE_DOS_HEADER)pMemBuffer;
 	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
 		std::println("has not dos format");
 		return false;
 	}
-	const PIMAGE_NT_HEADERS const ntHeader = (PIMAGE_NT_HEADERS)((DWORD)pMemBuffer + dosHeader->e_lfanew);
+	PIMAGE_NT_HEADERS const ntHeader = (PIMAGE_NT_HEADERS)((DWORD)pMemBuffer + dosHeader->e_lfanew);
 	if (ntHeader->Signature != IMAGE_NT_SIGNATURE) {
 		std::println("Invalid NT signature");
 		return false;
 	}
-	const PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
+	PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
 		+ sizeof(ntHeader->Signature)
 		+ sizeof(ntHeader->FileHeader));// ntHeader->OptionalHeader;
 	assert(optionalHeader == &ntHeader->OptionalHeader, "optionalHeader != ntHeader->OptionalHeader");
@@ -120,9 +120,9 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	fileSize += optionalHeader->SizeOfHeaders;
 	//	加上每一节的大小
 	const size_t sectionCount = ntHeader->FileHeader.NumberOfSections;
-	const PIMAGE_SECTION_HEADER const firstSection = IMAGE_FIRST_SECTION(ntHeader);
+	PIMAGE_SECTION_HEADER const firstSection = IMAGE_FIRST_SECTION(ntHeader);
 	for (size_t i = 0; i < sectionCount; ++i) {
-		const PIMAGE_SECTION_HEADER const curSection = firstSection + i;
+		PIMAGE_SECTION_HEADER const curSection = firstSection + i;
 		fileSize += curSection->SizeOfRawData;
 	}
 	PBYTE pFileBuffer = (PBYTE)malloc(fileSize);
@@ -134,7 +134,7 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	// 拷贝所有的头和节表
 	memcpy(pFileBuffer, pMemBuffer, optionalHeader->SizeOfHeaders);
 	for (size_t i = 0; i < sectionCount; ++i) {
-		const PIMAGE_SECTION_HEADER const curSection = firstSection + i;
+		PIMAGE_SECTION_HEADER const curSection = firstSection + i;
 		const DWORD offsetInMemry = curSection->VirtualAddress;
 		const DWORD offsetInFile = curSection->PointerToRawData;
 		const DWORD curSectionSizeinFile = curSection->SizeOfRawData;
@@ -180,9 +180,9 @@ DWORD RVA2FOA(IN LPVOID pMemoryBuffer, IN DWORD Rva)
 		if (Rva >= virtualAddress && Rva < virtualAddress + sectionSize)
 		{
 			auto const ans = ptoRawData + (Rva - virtualAddress);
-			std::println("the fva is {:X}", ans);
 			return ans;
 		}
 	}
 	return 0;
 }
+void PrintRelocatedTable(PVOID pFileBuffer);

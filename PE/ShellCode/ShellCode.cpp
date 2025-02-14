@@ -48,7 +48,7 @@ bool AddShellCode2DataSection(IN const char* infilename, IN const char* outfilen
 	修改oep的值
 	将该内存的数据写入到新文件中
 	*/
-	void* memoryImage = ImageFile2Memory(infilename);
+	void* memoryImage = ReadMemoryImage(infilename);
 
 	PIMAGE_DOS_HEADER dosHeader = GetDosHeader(memoryImage);
 	PIMAGE_NT_HEADERS ntHeaders = GetNTHeader(memoryImage, dosHeader);
@@ -97,7 +97,7 @@ bool AddShellCode2CodeSection(IN const char* infilename, IN const char* outfilen
 	修改oep的值
 	将该内存的数据写入到新文件中
 	*/
-	void* memoryImage = ImageFile2Memory(infilename);
+	void* memoryImage = ReadMemoryImage(infilename);
 
 	PIMAGE_DOS_HEADER dosHeader = GetDosHeader(memoryImage);
 	PIMAGE_NT_HEADERS ntHeaders = GetNTHeader(memoryImage, dosHeader);
@@ -139,7 +139,7 @@ bool AddNewSection(IN const char* infilename, IN const char* outfilename)
 		修改SizeOfImage
 		写回到文件中
 	*/
-	void* memoryImage = ReadPEFile(infilename);
+	void* memoryImage = ReadMemoryImage(infilename);
 	if (memoryImage == NULL)
 	{
 		std::println("打开文件失败");
@@ -191,6 +191,7 @@ bool AddNewSection(IN const char* infilename, IN const char* outfilename)
 	memset(curSection->Name, 0, sizeof(curSection->Name));
 	memcpy(curSection->Name, name, 4);
 	curSection->Misc.VirtualSize = opHeader->SectionAlignment;
+	curSection->SizeOfRawData = opHeader->SectionAlignment;
 	// 计算出上一页的大小，每一页的大小必须是SectionALignment的整数倍并且能够全覆盖SizeOfRawData和VirtualSize
 	PIMAGE_SECTION_HEADER preSection = curSection - 1;
 	DWORD sectionSize = (preSection->SizeOfRawData) > (preSection->Misc.VirtualSize) ? (preSection->SizeOfRawData) : (preSection->Misc.VirtualSize);
@@ -220,7 +221,7 @@ bool BigerSection(IN const char* infilename, IN const char* outfilename)
 		修改节表属性
 		修改SizeOfImage
 	*/
-	void* memoryImage = ReadPEFile(infilename);
+	void* memoryImage = ReadMemoryImage(infilename);
 	assert(memoryImage);
 	PIMAGE_NT_HEADERS ntHeaders = GetNTHeader(memoryImage, GetDosHeader(memoryImage));
 	int const imageSize = ntHeaders->OptionalHeader.SizeOfImage + ntHeaders->OptionalHeader.SectionAlignment;
@@ -244,7 +245,7 @@ bool BigerSection(IN const char* infilename, IN const char* outfilename)
 }
 bool MergeSection(IN const char* infilename, IN const char* outfilename)
 {
-	void* memoryImage = ReadPEFile(infilename);
+	void* memoryImage = ReadMemoryImage(infilename);
 	if (memoryImage == NULL) return false;
 	PIMAGE_NT_HEADERS ntHeaders = GetNTHeader(memoryImage, GetDosHeader(memoryImage));
 	PIMAGE_FILE_HEADER fileHeader = &ntHeaders->FileHeader;
@@ -264,7 +265,7 @@ bool MergeSection(IN const char* infilename, IN const char* outfilename)
 }
 void PirntDataDirectory(IN const char* filename)
 {
-	void* memoryImage = ReadPEFile(filename);
+	void* memoryImage = ReadFileBuffer(filename);
 	if (memoryImage == NULL) return;
 	PIMAGE_NT_HEADERS ntHeaders = GetNTHeader(memoryImage, GetDosHeader(memoryImage));
 	PIMAGE_FILE_HEADER fileHeader = &ntHeaders->FileHeader;
@@ -281,12 +282,12 @@ int main()
 {
 	const char* tenctentoriginfilename = "C:/softpackage/WeMeeting.exe";
 	const char* tencentoutfilename = "C:/softpackage/we.exe";
-	const char* fgoldname = "C:/compress/fg.exe";
-	const char* fgnewname = "C:/compress/fg2.exe";
+	const char* fgoldname = "C:/compress/drop/fg.exe";
+	const char* fgnewname = "C:/compress/drop/fg2.exe";
 	//AddShellCode2DataSection(fgoldname, fgnewname, 4);
-	//AddNewSection(fgoldname, fgnewname);
+	AddNewSection(fgoldname, fgnewname);
 	//BigerSection(fgoldname, fgnewname);
 	//MergeSection(fgoldname, fgnewname);
-	PirntDataDirectory(fgoldname);
+	//PirntDataDirectory(fgoldname);
 	return 0;
 }
