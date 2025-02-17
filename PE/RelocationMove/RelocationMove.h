@@ -1,4 +1,4 @@
-﻿// ShellCode.h: 标准系统包含文件的包含文件
+﻿// RelocationMove.h: 标准系统包含文件的包含文件
 // 或项目特定的包含文件。
 
 #pragma once
@@ -6,8 +6,8 @@
 // TODO: 在此处引用程序需要的其他标头。
 #include <windows.h>
 #include <print>
-#include <stdio.h>
 #include <cassert>
+
 int Align(int origin, int alignment)
 {
 	return (origin / alignment - 1) * alignment;
@@ -31,7 +31,7 @@ PIMAGE_NT_HEADERS GetNTHeader(LPVOID pImageBuffer, PIMAGE_DOS_HEADER dosHeader)
 	}
 	return ntHeader;
 }
-unsigned char* ReadFileBuffer(const char* filename) {
+DWORD ReadFileBuffer(const char* filename, void** pBuffer) {
 	FILE* fp = fopen(filename, "rb");
 	if (fp == NULL)
 	{
@@ -55,11 +55,13 @@ unsigned char* ReadFileBuffer(const char* filename) {
 		exit(-1);
 	}
 	fclose(fp);
-	return buffer;
+	*pBuffer = buffer;
+	return bytes;
 }
 
 PBYTE ReadMemoryImage(const char* filename) {
-	unsigned char* buffer = ReadFileBuffer(filename);
+	unsigned char* buffer;
+	DWORD size = ReadFileBuffer(filename, (void**)&buffer);
 	PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)buffer;
 	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
 		free(buffer);
@@ -72,10 +74,11 @@ PBYTE ReadMemoryImage(const char* filename) {
 		std::println("Invalid NT signature\n");
 		return NULL;
 	}
-	PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
+	const PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
 		+ sizeof(ntHeader->Signature)
 		+ sizeof(ntHeader->FileHeader));// ntHeader->OptionalHeader;
-	assert(optionalHeader == &ntHeader->OptionalHeader, "optionalHeader != ntHeader->OptionalHeader");
+	std::println("offset is {:X}, use & is {:X}", (DWORD)optionalHeader, (DWORD)&ntHeader->OptionalHeader);
+	assert(optionalHeader == &ntHeader->OptionalHeader);
 	const DWORD ImageSize = optionalHeader->SizeOfImage;
 	PBYTE const ImageBuffer = (PBYTE)malloc(ImageSize);
 	if (!ImageBuffer) {
@@ -114,7 +117,7 @@ bool ImageMemory2File(PBYTE pMemBuffer, const char* destPath) {
 	const PIMAGE_OPTIONAL_HEADER const optionalHeader = (PIMAGE_OPTIONAL_HEADER)((DWORD)ntHeader
 		+ sizeof(ntHeader->Signature)
 		+ sizeof(ntHeader->FileHeader));// ntHeader->OptionalHeader;
-	assert(optionalHeader == &ntHeader->OptionalHeader);
+	assert(optionalHeader == &ntHeader->OptionalHeader, "optionalHeader != ntHeader->OptionalHeader");
 	DWORD fileSize = 0;
 	// 加上所有header和节表的大小
 	fileSize += optionalHeader->SizeOfHeaders;
@@ -180,9 +183,136 @@ DWORD RVA2FOA(IN LPVOID pMemoryBuffer, IN DWORD Rva)
 		if (Rva >= virtualAddress && Rva < virtualAddress + sectionSize)
 		{
 			auto const ans = ptoRawData + (Rva - virtualAddress);
-			std::println("the fva is {:X}", ans);
+			//std::println("the foa is {:X}", ans);
 			return ans;
 		}
 	}
 	return 0;
 }
+DWORD FOA2RVA(IN LPVOID pMemoryBuffer, IN DWORD Foa)
+{
+	auto const dosHeader = GetDosHeader(pMemoryBuffer);
+	if (dosHeader == NULL) return -1;
+	auto const ntHeader = GetNTHeader(pMemoryBuffer, dosHeader);
+	if (ntHeader == NULL) return -1;
+	auto const optionalHeader = &ntHeader->OptionalHeader;
+	// 如果偏移量还在头部，那么直接返回即可
+	if (Foa < optionalHeader->SizeOfHeaders)
+	{
+		return Foa;
+	}
+	auto const sectionCount = ntHeader->FileHeader.NumberOfSections;
+	auto const firstSection = IMAGE_FIRST_SECTION(ntHeader);
+	for (int i = 0; i < sectionCount; ++i)
+	{
+		auto const curSection = firstSection + i;
+		auto const virtualAddress = curSection->VirtualAddress;
+		auto const ptoRawData = curSection->PointerToRawData;
+		auto const sectionSize = curSection->SizeOfRawData;
+		if (Foa >= ptoRawData && Foa < ptoRawData + sectionSize)
+		{
+			auto const ans = virtualAddress + (Foa - ptoRawData);
+			//std::println("the rva is {:X}", ans);
+			return ans;
+		}
+	}
+	return 0;
+}
+// 写入内存中的数据到对应文件名
+bool write_file(IN void* buffer, IN const char* filename, IN const DWORD size)
+{
+	FILE* fp = fopen(filename, "wb");
+	auto ans = fwrite(buffer, size, 1, fp);
+	if (ans == -1)
+	{
+		std::println("fwrite fail, becase:", strerror(errno));
+		return false;
+	}
+	fclose(fp);
+	return true;
+}
+
+DWORD Offset(PVOID buffer, PVOID addr)
+{
+	return (DWORD)(addr)-(DWORD)buffer;
+}
+
+
+/*
+	新增一个节，大小为0x1000 字节的节，通过newFOA返回新增节的FOA
+*/
+bool AddNewSection(IN const char* infilename, int& newFOA)
+{
+	/*
+		将文件读取到内存中来
+		判断是否能够在不增加SizeOfHeaders的情况下添加一个节表
+		申请一块新的足够大的内存来保存新的memoryImage
+		复制原来的memoryImage到新的中
+		添加一个节
+		添加一个节表（可以复制一个节表）
+		修改节表中的节大小（对齐后），va，misc.VirtualSize（对其前），foa
+		修改NumberOfSection
+		修改SizeOfImage
+		写回到文件中
+	*/
+	void* memoryImage = ReadMemoryImage(infilename);
+	if (memoryImage == NULL)
+	{
+		std::println("打开内存镜像buffer文件失败");
+		return false;
+	}
+	PIMAGE_DOS_HEADER dosHeader = GetDosHeader(memoryImage);
+	PIMAGE_NT_HEADERS ntHeaders = GetNTHeader(memoryImage, dosHeader);
+	PIMAGE_FILE_HEADER fileHader = &ntHeaders->FileHeader;
+	PIMAGE_OPTIONAL_HEADER opHeader = &ntHeaders->OptionalHeader;
+	// 判断headers的空闲大小是否还符合要求
+	const int freebytes = opHeader->SizeOfHeaders - (dosHeader->e_lfanew +
+		sizeof(IMAGE_NT_HEADERS) + fileHader->NumberOfSections * sizeof(IMAGE_SECTION_HEADER));
+	if (freebytes < 2 * sizeof(IMAGE_SECTION_HEADER))
+	{
+		std::println("该文件的headers空闲区域无法放下一张节表");
+		return false;
+	}
+	// 计算出添加一节后的ImageSize,这里增加0x1000即可
+	const int newSizeOfImage = opHeader->SizeOfImage + 0x1000;
+	void* newMemoryImage = calloc(1, newSizeOfImage);
+	assert(newMemoryImage);
+	memcpy(newMemoryImage, memoryImage, opHeader->SizeOfImage);
+	free(memoryImage);
+	dosHeader = GetDosHeader(newMemoryImage);
+	ntHeaders = GetNTHeader(newMemoryImage, dosHeader);
+	fileHader = &ntHeaders->FileHeader;
+	opHeader = &ntHeaders->OptionalHeader;
+	// 复制第一个节表到最后
+	PIMAGE_SECTION_HEADER firSection = IMAGE_FIRST_SECTION(ntHeaders);
+	const int sectionCount = fileHader->NumberOfSections;
+	memcpy(firSection + sectionCount, firSection, sizeof(IMAGE_SECTION_HEADER));
+	memset(firSection + sectionCount + 1, 0, sizeof(IMAGE_SECTION_HEADER));
+	PIMAGE_SECTION_HEADER curSection = firSection + sectionCount;
+	const char* name = "export";
+	memset(curSection->Name, 0, sizeof(curSection->Name));
+	memcpy(curSection->Name, name, strlen(name));
+	curSection->Misc.VirtualSize = 0x1000;
+	curSection->SizeOfRawData = 0x1000;
+	// 计算出上一页的大小，每一页的大小必须是SectionALignment的整数倍并且能够全覆盖SizeOfRawData和VirtualSize
+	PIMAGE_SECTION_HEADER preSection = curSection - 1;
+	DWORD sectionSize = (preSection->SizeOfRawData) > (preSection->Misc.VirtualSize) ? (preSection->SizeOfRawData) : (preSection->Misc.VirtualSize);
+	if (sectionSize % opHeader->SectionAlignment != 0)
+	{
+		sectionSize = (sectionSize / opHeader->SectionAlignment + 1) * opHeader->SectionAlignment;
+	}
+	curSection->VirtualAddress = preSection->VirtualAddress + sectionSize;
+	//计算在文件中的偏移，这个比较固定，因为SizeOfRawData本来就是对其后的大小
+	curSection->PointerToRawData = preSection->PointerToRawData + preSection->SizeOfRawData;
+	// 修改输入值
+	newFOA = curSection->PointerToRawData;
+	// 修改节数量
+	fileHader->NumberOfSections = fileHader->NumberOfSections + 1;
+	// 修改内存镜像大小
+	opHeader->SizeOfImage = newSizeOfImage;
+	auto ans = ImageMemory2File((PBYTE)newMemoryImage, infilename);
+	free(newMemoryImage);
+	return ans;
+
+}
+

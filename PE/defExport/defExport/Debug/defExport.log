@@ -1,2 +1,3 @@
-﻿    正在创建库 C:\reverse\PE\defExport\Debug\defExport.lib 和对象 C:\reverse\PE\defExport\Debug\defExport.exp
+﻿  LINK : 没有找到 C:\reverse\PE\defExport\Debug\defExport.dll 或上一个增量链接没有生成它；正在执行完全链接
+    正在创建库 C:\reverse\PE\defExport\Debug\defExport.lib 和对象 C:\reverse\PE\defExport\Debug\defExport.exp
   defExport.vcxproj -> C:\reverse\PE\defExport\Debug\defExport.dll

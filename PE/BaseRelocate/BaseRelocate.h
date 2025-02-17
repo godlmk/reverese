@@ -30,8 +30,7 @@ PIMAGE_NT_HEADERS GetNTHeader(LPVOID pImageBuffer, PIMAGE_DOS_HEADER dosHeader)
 	}
 	return ntHeader;
 }
-
-unsigned char* ReadFileBuffer(const char* filename) {
+DWORD ReadFileBuffer(const char* filename, void** pBuffer) {
 	FILE* fp = fopen(filename, "rb");
 	if (fp == NULL)
 	{
@@ -55,11 +54,14 @@ unsigned char* ReadFileBuffer(const char* filename) {
 		exit(-1);
 	}
 	fclose(fp);
-	return buffer;
+	*pBuffer = buffer;
+	return bytes;
 }
 
+
 PBYTE ReadMemoryImage(const char* filename) {
-	unsigned char* buffer = ReadFileBuffer(filename);
+	unsigned char* buffer;
+	size_t size = ReadFileBuffer(filename, (void**)&buffer);
 	PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)buffer;
 	if (dosHeader->e_magic != IMAGE_DOS_SIGNATURE) {
 		free(buffer);
@@ -184,5 +186,17 @@ DWORD RVA2FOA(IN LPVOID pMemoryBuffer, IN DWORD Rva)
 		}
 	}
 	return 0;
+}
+bool write_file(IN void* buffer, IN const char* filename, IN const DWORD size)
+{
+	FILE* fp = fopen(filename, "wb");
+	auto ans = fwrite(buffer, size, 1, fp);
+	if (ans == -1)
+	{
+		std::println("fwrite fail, becase:", strerror(errno));
+		return false;
+	}
+	fclose(fp);
+	return true;
 }
 void PrintRelocatedTable(PVOID pFileBuffer);

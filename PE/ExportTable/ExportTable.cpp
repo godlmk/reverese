@@ -56,7 +56,8 @@ void PrintAllExportFuncName(IN const char* filename)
 		DWORD funcName_foa = RVA2FOA(fileImage, funcName_rva);
 		//打印函数名
 		const char* funcName = (const char*)((DWORD)fileImage + funcName_foa);
-		std::println("ordinal为{}的函数名为{}", (ordinal_table[i]), funcName);
+		std::println("ordinal为{}的函数名为{}, foa is {:X}",
+			(ordinal_table[i]), funcName, funcName_foa);
 	}
 	DWORD func_table_rva = pExporttable->AddressOfFunctions;
 	DWORD func_table_foa = RVA2FOA(fileImage, func_table_rva);
