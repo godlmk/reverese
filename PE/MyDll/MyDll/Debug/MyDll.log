@@ -1,6 +1,2 @@
-﻿  pch.cpp
-  dllmain.cpp
-  MyDll.cpp
-  正在生成代码...
-    正在创建库 C:\reverse\PE\MyDll\Debug\MyDll.lib 和对象 C:\reverse\PE\MyDll\Debug\MyDll.exp
+﻿  MyDll.cpp
   MyDll.vcxproj -> C:\reverse\PE\MyDll\Debug\MyDll.dll

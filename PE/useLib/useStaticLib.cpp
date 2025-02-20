@@ -7,33 +7,54 @@
 #include <print>
 // 通过#pragma comment(lib, "Calc.lib")引入静态库
 //#pragma comment(lib, "StaticLib.lib")
+
+// 使用静态绑定
 // 通过#pragma comment(lib, "MyDll.lib")引入动态库
-//#pragma comment(lib, "MyDll.lib")
-// 申明在动态库中的函数
-//extern "C" __declspec(dllimport) int Add(int a, int b);
-//extern "C" __declspec(dllimport) int Sub(int a, int b);
-//extern "C" __declspec(dllimport) int Mul(int a, int b);
-//extern "C" __declspec(dllimport) int Div(int a, int b);
+#pragma comment(lib, "MyDll.lib")
+ //申明在动态库中的函数
+extern "C" __declspec(dllimport) int Add(int a, int b);
+extern "C" __declspec(dllimport) int Sub(int a, int b);
+extern "C" __declspec(dllimport) int Mul(int a, int b);
+extern "C" __declspec(dllimport) int Div(int a, int b);
+void useStaticBound()
+{
+	int sum = Add(1, 2);
+	std::println("sum is {}", sum);
+}
+
+// 使用动态绑定
 using lpAdd = int(*)(int, int);
 using lpSub = int(*)(int, int);
 using lpMul = int(*)(int, int);
 using lpDiv = int(*)(int, int);
 
-int main()
+void useDynamicBound()
 {
-	std::cout << "Hello World!\n";
 	lpAdd myadd;
-	HMODULE hMoudle = LoadLibraryW(L"C:/reverse/PE/useLib/dynamicLib/defExport.dll");
+	HMODULE hMoudle = LoadLibrary(L"C:/reverse/PE/useLib/dynamicLib/MyDll.dll");
 	if (hMoudle == NULL)
 	{
 		std::println("LoadLibrary failed");
-		return -1;
+		return;
+	}
+	// 保持消息循环以处理消息
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
 	}
 	std::println("LoadLibrary success, id is {:d}", (int)hMoudle);
 	myadd = (lpAdd)GetProcAddress(hMoudle, "Add");
 	int sum = myadd(3, 4);
 	std::println("{}", sum);
 	FreeLibrary(hMoudle);
+}
+
+int main()
+{
+	useStaticBound();
+	useDynamicBound();
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
