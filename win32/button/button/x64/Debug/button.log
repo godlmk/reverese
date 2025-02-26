@@ -1,0 +1,3 @@
+﻿  button.cpp
+C:\reverse\win32\button\button.cpp(83,1): warning C4003: 类函数宏的调用“CreateWindowW”参数不足
+C:\reverse\win32\button\button.cpp(74,19): error C2059: 语法错误:“)”
