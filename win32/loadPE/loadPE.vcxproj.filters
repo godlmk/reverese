@@ -27,9 +27,15 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="PETools.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="loadPE.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PETools.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

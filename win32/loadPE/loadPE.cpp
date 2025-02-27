@@ -9,11 +9,48 @@
 #include <TlHelp32.h>
 #include <tchar.h>
 #include <commdlg.h>
+#include <string>
+#include <format>
+#include "PETools.h"
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
-
-
-//BOOL CALLBACK DialogProcMain(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam);
+TCHAR filePath[MAX_PATH];						// 选中的文件名
+DWORD directoryType[16] = {
+IDC_EDIT_EXPORT,
+ IDC_EDIT_IMPORT                 ,
+ IDC_EDIT_RESOURCE        ,
+ IDC_EDIT_EXCEPTION     ,
+ IDC_EDIT_SECURITY     ,
+ IDC_EDIT_RELOCATION  ,
+ IDC_EDIT_DEBUG       ,
+ IDC_EDIT_ARCH        ,
+ IDC_EDIT_RVAOFGP     ,
+ IDC_EDIT_TLS         ,
+ IDC_EDIT_LOADCONFIG  ,
+ IDC_EDIT_BOUNDIMPORT ,
+ IDC_EDIT_IAT         ,
+ IDC_EDIT_DELAYIMPORT ,
+ IDC_EDIT_COM         ,
+ IDC_EDIT_REVERSE
+};
+DWORD directoryType2[16] = {
+IDC_EDIT_EXPORT2,
+ IDC_EDIT_IMPORT2                 ,
+ IDC_EDIT_RESOURCE2        ,
+ IDC_EDIT_EXCEPTION2     ,
+ IDC_EDIT_SECURITY2     ,
+ IDC_EDIT_RELOCATION2  ,
+ IDC_EDIT_DEBUG2       ,
+ IDC_EDIT_ARCH2        ,
+ IDC_EDIT_RVAOFGP2     ,
+ IDC_EDIT_TLS2         ,
+ IDC_EDIT_LOADCONFIG2  ,
+ IDC_EDIT_BOUNDIMPORT2 ,
+ IDC_EDIT_IAT2         ,
+ IDC_EDIT_DELAYIMPORT2 ,
+ IDC_EDIT_COM2         ,
+ IDC_EDIT_REVERSE2
+};
 
 #ifdef _DEBUG  
 #define DbgPrintfA   OutputDebugStringF  
@@ -96,12 +133,13 @@ BOOL CALLBACK DialogProcPE(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 	{
-		TCHAR filePath[MAX_PATH];
-		if (OpenFileDialog(hwndDlg, filePath, MAX_PATH))
+		if (!OpenFileDialog(hwndDlg, filePath, MAX_PATH))
 		{
-			MessageBox(hwndDlg, filePath, TEXT("Select File"), MB_OK);
+			MessageBox(hwndDlg, TEXT("open failed"), TEXT("Select File"), MB_OK);
+			return true;
 		}
-		return false;
+		InitPEView(hwndDlg);
+		return TRUE;
 	}
 	case WM_CLOSE:
 	{
@@ -117,6 +155,75 @@ BOOL CALLBACK DialogProcPE(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
 			EndDialog(hwndDlg, 0);
 			return TRUE;
 		}
+		case IDC_BUTTON_SECTION:
+		{
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_SECTION), hwndDlg, DialogProcSection);
+			return TRUE;
+		}
+		case IDC_BUTTON_DIRECTORY:
+		{
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_DIRECTORY), hwndDlg, DialogProcDirectory);
+			return TRUE;
+		}
+		}
+		break;
+	}
+	}
+	return FALSE;
+}
+
+BOOL CALLBACK DialogProcSection(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_INITDIALOG:
+	{
+		InitSectionView(hwndDlg);
+		PopulateSectionView(hwndDlg);
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
+	}
+	return FALSE;
+}
+
+BOOL CALLBACK DialogProcDirectory(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_INITDIALOG:
+	{
+		InitDirectoryView(hwndDlg);
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
+	case WM_COMMAND:
+	{
+		switch (LOWORD(wParam))
+		{
+		case IDC_BUTTON_EXPORT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_DETAILS), hwndDlg, DialogProcExport);
+			return TRUE;
+		case IDC_BUTTON_IMPORT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_DETAILS), hwndDlg, DialogProcImport);
+			return TRUE;
+		case IDC_BUTTON_RESOURCE:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_DETAILS), hwndDlg, DialogProcResource);
+			return TRUE;
+		case IDC_BUTTON_RELOCATION:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_DETAILS), hwndDlg, DialogProcRelocation);
+			return TRUE;
+		case IDC_BUTTON_BOUND_IMPORT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_DIALOG_DETAILS), hwndDlg, DialogProcBoundImport);
+			return TRUE;
 		}
 		break;
 	}
@@ -322,13 +429,401 @@ BOOL OpenFileDialog(HWND hwnd, LPTSTR filePath, DWORD filePathSize)
 	ofn.hwndOwner = hwnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = TEXT("*.exe;*.dll;*.scr;*.drv;*.sys");
+	ofn.lpstrFilter = TEXT("*.exe;*.dll;*.scr;*.drv;*.sys\0*.exe;*.dll;*.src;*.drv;*.sys\0All Files (*.*)\0*.*\0");
+	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 	if (GetOpenFileName(&ofn) == TRUE)
 	{
 		_tcsncpy_s(filePath, filePathSize, ofn.lpstrFile, _TRUNCATE);
 		return TRUE;
+	}
+	return FALSE;
+}
+
+void InitPEView(HWND hDlg)
+{
+	/*
+	根据名字得到PE头文件
+	为EditControl赋值
+	*/
+	void* file_buffer;
+	DWORD size = ReadFileBuffer(filePath, &file_buffer);
+	// doc头
+	PIMAGE_DOS_HEADER dos_header = GetDosHeader(file_buffer);
+	PIMAGE_NT_HEADERS nt_headers = GetNTHeader(file_buffer, dos_header);
+	PIMAGE_FILE_HEADER file_header = &nt_headers->FileHeader;
+	PIMAGE_OPTIONAL_HEADER op_header = &nt_headers->OptionalHeader;
+
+	// 入口点
+	DWORD eop = op_header->AddressOfEntryPoint;
+	DbgPrintfA("rva: %X, foa: %X", eop, RVA2FOA(file_buffer, eop));
+	TCHAR szBuffer[0x20];
+	size_t len = 0x20;
+	_stprintf_s(szBuffer, len, L"%04X", eop);
+	SetDlgItemText(hDlg, IDC_EDIT_ENTRY_POINT, szBuffer);
+	// 镜像基址
+	DWORD image_base = op_header->ImageBase;
+	_stprintf_s(szBuffer, len, L"%08X", image_base);
+	SetDlgItemText(hDlg, IDC_EDIT_IMAGEBASE, szBuffer);
+	// 镜像大小
+	DWORD image_size = op_header->SizeOfImage;
+	_stprintf_s(szBuffer, len, L"%08X", image_size);
+	SetDlgItemText(hDlg, IDC_EDIT_IMAGESIZE, szBuffer);
+	// 代码基址
+	DWORD code_base = op_header->BaseOfCode;
+	_stprintf_s(szBuffer, len, L"%08X", code_base);
+	SetDlgItemText(hDlg, IDC_EDIT_CODEBASE, szBuffer);
+	// 数据基址
+	DWORD data_base = op_header->BaseOfData;
+	_stprintf_s(szBuffer, len, L"%08X", data_base);
+	SetDlgItemText(hDlg, IDC_EDIT_DATABASE, szBuffer);
+	// 内存对齐
+	DWORD section_alignment = op_header->SectionAlignment;
+	_stprintf_s(szBuffer, len, L"%08X", section_alignment);
+	SetDlgItemText(hDlg, IDC_EDIT_SECTIONALIGNMENT, szBuffer);
+	// 文件对齐
+	DWORD file_alignment = op_header->FileAlignment;
+	_stprintf_s(szBuffer, len, L"%08X", file_alignment);
+	SetDlgItemText(hDlg, IDC_EDIT_FILEALIGNMENT, szBuffer);
+	// 属性值
+	DWORD character = file_header->Characteristics;
+	_stprintf_s(szBuffer, len, L"%08X", character);
+	SetDlgItemText(hDlg, IDC_EDIT_CHARA, szBuffer);
+	// 子系统
+	DWORD sub_system = op_header->Subsystem;
+	_stprintf_s(szBuffer, len, L"%08X", sub_system);
+	SetDlgItemText(hDlg, IDC_EDIT_SUBSYSTEM, szBuffer);
+	// 节数
+	DWORD section_number = file_header->NumberOfSections;
+	_stprintf_s(szBuffer, len, L"%08X", section_number);
+	SetDlgItemText(hDlg, IDC_EDIT_SECTIONNUMBER, szBuffer);
+	// 时间戳
+	DWORD time_stamp = file_header->TimeDateStamp;
+	_stprintf_s(szBuffer, len, L"%08X", time_stamp);
+	SetDlgItemText(hDlg, IDC_EDIT_TIMESTAMP, szBuffer);
+	// 头大小
+	DWORD header_size = op_header->SizeOfHeaders;
+	_stprintf_s(szBuffer, len, L"%08X", header_size);
+	SetDlgItemText(hDlg, IDC_EDIT_PEHEADERSIZE, szBuffer);
+	// 特征值
+	DWORD thevalue = file_header->Machine;
+	_stprintf_s(szBuffer, len, L"%08X", thevalue);
+	SetDlgItemText(hDlg, IDC_EDIT_THEVALUE, szBuffer);
+	// 校验和
+	DWORD check_sum = op_header->CheckSum;
+	_stprintf_s(szBuffer, len, L"%08X", check_sum);
+	SetDlgItemText(hDlg, IDC_EDIT_CHECKSUM, szBuffer);
+	// 可选PE头数量
+	DWORD opheaders_count = file_header->SizeOfOptionalHeader;
+	_stprintf_s(szBuffer, len, L"%08X", opheaders_count);
+	SetDlgItemText(hDlg, IDC_EDIT_OPHEADER, szBuffer);
+	// 目录项数目
+	DWORD directory_count = op_header->NumberOfRvaAndSizes;
+	_stprintf_s(szBuffer, len, L"%08X", directory_count);
+	SetDlgItemText(hDlg, IDC_EDIT_DIRECTORYSIZE, szBuffer);
+	free(file_buffer);
+}
+
+void InitSectionView(HWND hDlg)
+{
+
+	/*// 设置整行选中
+	SendMessage(hListProcess, LVM_SETEXTENDEDLISTVIEWSTYLE,
+		LVS_EX_FULLROWSELECT, LVS_EX_FULLROWSELECT);
+	// 第一列
+	lv.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+	lv.pszText = (LPWSTR)TEXT("进程"); // 列标题
+	lv.cx = 200;
+	lv.iSubItem = 0;
+	SendMessage(hListProcess, LVM_INSERTCOLUMN, 0, (DWORD)&lv);
+	*/
+	LV_COLUMN lv = { 0 };
+	HWND hListSection = GetDlgItem(hDlg, IDC_LIST_SECTION);
+	// 整行选中
+	ListView_SetExtendedListViewStyle(hListSection, LVS_EX_FULLROWSELECT);
+	// 初始化列
+	lv.mask = LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+	int ColIndex = 0;
+	// 第一列
+	lv.pszText = (LPWSTR)TEXT("节名");
+	lv.cx = 50;
+	lv.iSubItem = ColIndex;
+	ListView_InsertColumn(hListSection, ColIndex, &lv);
+	++ColIndex;
+
+	lv.pszText = (LPWSTR)TEXT("文件偏移");
+	lv.cx = 90;
+	lv.iSubItem = ColIndex;
+	ListView_InsertColumn(hListSection, ColIndex, &lv);
+	++ColIndex;
+
+	lv.pszText = (LPWSTR)TEXT("文件大小");
+	lv.cx = 90;
+	lv.iSubItem = ColIndex;
+	ListView_InsertColumn(hListSection, ColIndex, &lv);
+	++ColIndex;
+
+	lv.pszText = (LPWSTR)TEXT("内存偏移");
+	lv.cx = 100;
+	lv.iSubItem = ColIndex;
+	ListView_InsertColumn(hListSection, ColIndex, &lv);
+	++ColIndex;
+
+	lv.pszText = (LPWSTR)TEXT("内存大小");
+	lv.cx = 100;
+	lv.iSubItem = ColIndex;
+	ListView_InsertColumn(hListSection, ColIndex, &lv);
+	++ColIndex;
+
+	lv.pszText = (LPWSTR)TEXT("节区属性");
+	lv.cx = 100;
+	lv.iSubItem = ColIndex;
+	ListView_InsertColumn(hListSection, ColIndex, &lv);
+	++ColIndex;
+
+}
+
+void PopulateSectionView(HWND hDlg)
+{
+	HWND hListSection = GetDlgItem(hDlg, IDC_LIST_SECTION);
+	void* file_buffer;
+	DWORD size = ReadFileBuffer(filePath, &file_buffer);
+	if (file_buffer == NULL) {
+		return;
+	}
+	PIMAGE_DOS_HEADER dos_header = GetDosHeader(file_buffer);
+	PIMAGE_NT_HEADERS nt_headers = GetNTHeader(file_buffer, dos_header);
+	PIMAGE_OPTIONAL_HEADER opt_header = &nt_headers->OptionalHeader;
+
+	PIMAGE_SECTION_HEADER first_section_header = IMAGE_FIRST_SECTION(nt_headers);
+	DWORD sectionCount = nt_headers->FileHeader.NumberOfSections;
+	TCHAR szBuffer[0x20];
+	for (DWORD i = 0; i < sectionCount; ++i)
+	{
+		LV_ITEM lvItem;
+		lvItem.mask = LVIF_TEXT;
+		lvItem.iItem = i;
+		// 名字
+		lvItem.iSubItem = 0;
+		char sectionName[9] = { 0 };
+		strncpy_s(sectionName, (char*)first_section_header[i].Name, 8);
+		_stprintf_s(szBuffer, 0x8, TEXT("%hs"), sectionName);
+		lvItem.pszText = szBuffer;
+		ListView_InsertItem(hListSection, &lvItem);
+		// 文件偏移
+		lvItem.iSubItem = 1;
+		_stprintf_s(szBuffer, 0x20, TEXT("0x%08X"), first_section_header[i].PointerToRawData);
+		lvItem.pszText = szBuffer;
+		ListView_SetItem(hListSection, &lvItem);
+
+		// 文件大小
+		lvItem.iSubItem = 2;
+		_stprintf_s(szBuffer, 0x20, TEXT("0x%08X"), first_section_header[i].SizeOfRawData);
+		lvItem.pszText = szBuffer;
+		ListView_SetItem(hListSection, &lvItem);
+		// 内存偏移
+		lvItem.iSubItem = 3;
+		_stprintf_s(szBuffer, 0x20, TEXT("0x%08X"), first_section_header[i].VirtualAddress);
+		lvItem.pszText = szBuffer;
+		ListView_SetItem(hListSection, &lvItem);
+		// 内存大小
+		lvItem.iSubItem = 4;
+		_stprintf_s(szBuffer, 0x20, TEXT("0x%08X"), first_section_header[i].Misc.VirtualSize);
+		lvItem.pszText = szBuffer;
+		ListView_SetItem(hListSection, &lvItem);
+		// 节区属性
+		lvItem.iSubItem = 5;
+		_stprintf_s(szBuffer, 0x20, TEXT("0x%08X"), first_section_header[i].Characteristics);
+		lvItem.pszText = szBuffer;
+		ListView_SetItem(hListSection, &lvItem);
+	}
+	free(file_buffer);
+}
+
+void InitDirectoryView(HWND hDlg)
+{
+	void* file_buffer;
+	DWORD size = ReadFileBuffer(filePath, &file_buffer);
+	// dos头
+	PIMAGE_DOS_HEADER dos_header = GetDosHeader(file_buffer);
+	PIMAGE_NT_HEADERS nt_headers = GetNTHeader(file_buffer, dos_header);
+	PIMAGE_OPTIONAL_HEADER op_header = &nt_headers->OptionalHeader;
+	TCHAR szBuffer[0x20];
+	size_t len{ 0x20 };
+	for (int i = 0; i < 16; ++i)
+	{
+		IMAGE_DATA_DIRECTORY cur = op_header->DataDirectory[i];
+		_stprintf_s(szBuffer, len, TEXT("0x%08X"), cur.VirtualAddress);
+		SetDlgItemText(hDlg, directoryType[i], szBuffer);
+		_stprintf_s(szBuffer, len, TEXT("0x%08X"), cur.Size);
+		SetDlgItemText(hDlg, directoryType2[i], szBuffer);
+	}
+	free(file_buffer);
+}
+
+BOOL CALLBACK DialogProcExport(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_INITDIALOG:
+	{
+		SetDlgItemText(hwndDlg, IDC_EDIT, TEXT(""));
+		void* file_buffer;
+		DWORD size = ReadFileBuffer(filePath, &file_buffer);
+		std::string content = ExportTable(file_buffer);
+		int size_needed = MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, NULL, 0);
+		std::wstring contentW(size_needed, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, &contentW[0], size_needed);
+		std::wstring text = contentW; // 这是转换后的文本
+		// 替换所有 "\n" 为 "\r\n"
+		size_t pos = 0;
+		while ((pos = text.find(L"\n", pos)) != std::wstring::npos)
+		{
+			text.replace(pos, 1, L"\r\n");
+			pos += 2;
+		}
+		SetDlgItemText(hwndDlg, IDC_EDIT, text.c_str());
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
+	}
+	return 0;
+}
+
+BOOL CALLBACK DialogProcImport(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+		SetDlgItemText(hwndDlg, IDC_EDIT, TEXT(""));
+	case WM_INITDIALOG:
+	{
+		void* file_buffer;
+		DWORD size = ReadFileBuffer(filePath, &file_buffer);
+		std::string content = ImportTable(file_buffer);
+		int size_needed = MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, NULL, 0);
+		std::wstring contentW(size_needed, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, &contentW[0], size_needed);
+		std::wstring text = contentW; // 这是转换后的文本
+		// 替换所有 "\n" 为 "\r\n"
+		size_t pos = 0;
+		while ((pos = text.find(L"\n", pos)) != std::wstring::npos)
+		{
+			text.replace(pos, 1, L"\r\n");
+			pos += 2;
+		}
+		SetDlgItemText(hwndDlg, IDC_EDIT, text.c_str());
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
+	}
+	return FALSE;
+}
+
+BOOL CALLBACK DialogProcResource(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+		SetDlgItemText(hwndDlg, IDC_EDIT, TEXT(""));
+	case WM_INITDIALOG:
+	{
+		void* file_buffer;
+		DWORD size = ReadFileBuffer(filePath, &file_buffer);
+		std::string content = ResourceTable(file_buffer);
+		int size_needed = MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, NULL, 0);
+		std::wstring contentW(size_needed, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, &contentW[0], size_needed);
+
+		std::wstring text = contentW; // 这是转换后的文本
+		// 替换所有 "\n" 为 "\r\n"
+		size_t pos = 0;
+		while ((pos = text.find(L"\n", pos)) != std::wstring::npos)
+		{
+			text.replace(pos, 1, L"\r\n");
+			pos += 2;
+		}
+		SetDlgItemText(hwndDlg, IDC_EDIT, text.c_str());
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
+	}
+	return FALSE;
+}
+
+BOOL CALLBACK DialogProcRelocation(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_INITDIALOG:
+	{
+		SetDlgItemText(hwndDlg, IDC_EDIT, TEXT(""));
+		void* file_buffer;
+		DWORD size = ReadFileBuffer(filePath, &file_buffer);
+		std::string content = RelocatedTable(file_buffer);
+		int size_needed = MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, NULL, 0);
+		std::wstring contentW(size_needed, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, &contentW[0], size_needed);
+		std::wstring text = contentW; // 这是转换后的文本
+		// 替换所有 "\n" 为 "\r\n"
+		size_t pos = 0;
+		while ((pos = text.find(L"\n", pos)) != std::wstring::npos)
+		{
+			text.replace(pos, 1, L"\r\n");
+			pos += 2;
+		}
+		SetDlgItemText(hwndDlg, IDC_EDIT, text.c_str());
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
+	}
+	return FALSE;
+}
+
+BOOL CALLBACK DialogProcBoundImport(HWND hwndDlg, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+	switch (Msg)
+	{
+	case WM_INITDIALOG:
+	{
+		SetDlgItemText(hwndDlg, IDC_EDIT, TEXT(""));
+		void* file_buffer;
+		DWORD size = ReadFileBuffer(filePath, &file_buffer);
+		std::string content = BoundImportTable(file_buffer);
+		int size_needed = MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, NULL, 0);
+		std::wstring contentW(size_needed, L'\0');
+		MultiByteToWideChar(CP_ACP, 0, content.c_str(), -1, &contentW[0], size_needed);
+		std::wstring text = contentW; // 这是转换后的文本
+		// 替换所有 "\n" 为 "\r\n"
+		size_t pos = 0;
+		while ((pos = text.find(L"\n", pos)) != std::wstring::npos)
+		{
+			text.replace(pos, 1, L"\r\n");
+			pos += 2;
+		}
+		SetDlgItemText(hwndDlg, IDC_EDIT, text.c_str());
+		return TRUE;
+	}
+	case WM_CLOSE:
+	{
+		EndDialog(hwndDlg, 0);
+		return TRUE;
+	}
 	}
 	return FALSE;
 }
