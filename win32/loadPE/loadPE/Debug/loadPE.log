@@ -1,19 +1,2 @@
-﻿  PETools.cpp
-C:\reverse\win32\loadPE\PETools.cpp(61,26): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(66,26): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(71,31): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(74,2): warning C4002: 类函数宏的调用“assert”参数过多
-C:\reverse\win32\loadPE\PETools.cpp(80,30): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(82,31): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(95,31): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(131,26): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(137,31): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(155,30): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(168,26): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(173,26): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(178,31): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(181,2): warning C4002: 类函数宏的调用“assert”参数过多
-C:\reverse\win32\loadPE\PETools.cpp(187,30): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(189,31): warning C4114: 多次使用同一类型限定符
-C:\reverse\win32\loadPE\PETools.cpp(202,31): warning C4114: 多次使用同一类型限定符
+﻿  loadPE.cpp
   loadPE.vcxproj -> C:\reverse\win32\loadPE\Debug\loadPE.exe

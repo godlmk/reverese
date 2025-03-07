@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <ranges>
 #include <string>
+#include <print>
 
 
 constexpr BYTE shellcode[] = {
@@ -199,7 +200,7 @@ bool AddNewSection(IN const char* infilename, IN const char* outfilename)
 	{
 		sectionSize = (sectionSize / opHeader->SectionAlignment + 1) * opHeader->SectionAlignment;
 	}
-	curSection->VirtualAddress = preSection->VirtualAddress + sectionSize;
+	curSection->VirtualAddress = preSection->VirtualAddress + preSection->Misc.PhysicalAddress;
 	//计算在文件中的偏移，这个比较固定，因为SizeOfRawData本来就是对其后的大小
 	curSection->PointerToRawData = preSection->PointerToRawData + preSection->SizeOfRawData;
 	// 修改节数量
@@ -210,6 +211,84 @@ bool AddNewSection(IN const char* infilename, IN const char* outfilename)
 	free(newMemoryImage);
 	return true;
 }
+bool AddNewSection(IN  LPCTSTR infilename, OUT PVOID* newFileBuffer, OUT PDWORD pOldSize,
+	OUT PDWORD size_src)
+{
+	// 1. 获取相关信息
+	PVOID file_buffer;
+	DWORD size = ReadFileBuffer(infilename, &file_buffer);
+	PIMAGE_DOS_HEADER dos_header = GetDosHeader(file_buffer);
+	PIMAGE_NT_HEADERS nt_headers = GetNTHeader(file_buffer, dos_header);
+	PIMAGE_FILE_HEADER file_header = &nt_headers->FileHeader;
+	PIMAGE_OPTIONAL_HEADER op_header = &nt_headers->OptionalHeader;
+
+	// 2. 是否能够放下一张新的节表
+	const int freebytes = op_header->SizeOfHeaders - (dos_header->e_lfanew +
+		sizeof(IMAGE_NT_HEADERS) + file_header->NumberOfSections * sizeof(IMAGE_SECTION_HEADER));
+	if (freebytes < sizeof(IMAGE_SECTION_HEADER))
+	{
+		std::println("该文件的headers空闲区域无法放下一张节表");
+		return false;
+	}
+
+	// 3. 复制第一张表到新的节表
+	const int oldSectionNumber = file_header->NumberOfSections;
+	PIMAGE_SECTION_HEADER first_section = IMAGE_FIRST_SECTION(nt_headers);
+	PIMAGE_SECTION_HEADER cur_section = first_section + oldSectionNumber;
+	memcpy(cur_section, first_section, sizeof(IMAGE_SECTION_HEADER));
+
+	// 4. 在最后的节表位置设置一个全0的节表
+	memset(cur_section + 1, 0, sizeof(IMAGE_SECTION_HEADER));
+
+	// 5. 修改新增节表的属性
+	// 名字
+	const char* name = ".new";
+	memset(cur_section->Name, 0, sizeof(cur_section->Name));
+	memcpy(cur_section->Name, name, strlen(name));
+
+	// 对齐新的节大小
+	DWORD new_section_size = Align(*size_src, op_header->FileAlignment);
+	cur_section->Misc.VirtualSize = Align(*size_src, op_header->SectionAlignment);
+	PIMAGE_SECTION_HEADER pre_section = cur_section - 1;
+	DWORD t_add = 0;
+	if (pre_section->Misc.VirtualSize < pre_section->SizeOfRawData)
+	{
+		t_add = Align(pre_section->SizeOfRawData, op_header->SectionAlignment);
+	}
+	else
+	{
+		t_add = Align(pre_section->Misc.VirtualSize, op_header->SectionAlignment);
+	}
+	cur_section->VirtualAddress = pre_section->VirtualAddress + t_add;
+	cur_section->SizeOfRawData = new_section_size;
+	cur_section->PointerToRawData = pre_section->PointerToRawData + pre_section->SizeOfRawData;
+	cur_section->Characteristics = IMAGE_SCN_CNT_CODE | IMAGE_SCN_MEM_EXECUTE | IMAGE_SCN_MEM_READ | IMAGE_SCN_MEM_WRITE;
+
+	// 修改节表数量
+	file_header->NumberOfSections += 1;
+	// 7. 更新可选头的大小
+	op_header->SizeOfImage = Align(cur_section->VirtualAddress + cur_section->Misc.VirtualSize,
+		op_header->SectionAlignment);
+	*pOldSize = size + new_section_size;
+	*size_src = new_section_size;
+
+
+	// 6. 分配新的文件缓冲区并复制原始数据
+	*newFileBuffer = malloc(size + new_section_size);
+	if (!*newFileBuffer) {
+
+		std::println("malloc failed, because:");
+		free(file_buffer);
+		return false;
+	}
+	memcpy(*newFileBuffer, file_buffer, size);
+	memset((PBYTE)*newFileBuffer + size, 0, new_section_size);
+
+
+	free(file_buffer);
+	return true;
+}
+
 bool BigerSection(IN const char* infilename, IN const char* outfilename)
 {
 	/*
@@ -278,6 +357,18 @@ void PirntDataDirectory(IN const char* filename)
 		std::println("Size:{:x}", curData->Size);
 	}
 }
+bool write_file(IN void* buffer, IN const char* filename, IN const DWORD size)
+{
+	FILE* fp;
+	errno_t err = fopen_s(&fp, filename, "wb");
+	if (err != 0 || fp == NULL) {
+		// Handle error, e.g., log the error or return false
+		return false;
+	}
+	auto ans = fwrite(buffer, 1, size, fp);
+	fclose(fp);
+	return ans == 1;
+}
 int main()
 {
 	const char* tenctentoriginfilename = "C:/softpackage/WeMeeting.exe";
@@ -285,7 +376,11 @@ int main()
 	const char* fgoldname = "C:/compress/drop/fg.exe";
 	const char* fgnewname = "C:/compress/drop/fg2.exe";
 	//AddShellCode2DataSection(fgoldname, fgnewname, 4);
-	AddNewSection(fgoldname, fgnewname);
+	PVOID newbuffer;
+	DWORD size;
+	DWORD srcsize = 0x1900;
+	AddNewSection(fgoldname, &newbuffer, &size, &srcsize);
+	write_file(newbuffer, fgnewname, size);
 	//BigerSection(fgoldname, fgnewname);
 	//MergeSection(fgoldname, fgnewname);
 	//PirntDataDirectory(fgoldname);

@@ -608,7 +608,8 @@ void PopulateSectionView(HWND hDlg)
 		lvItem.iSubItem = 0;
 		char sectionName[9] = { 0 };
 		strncpy_s(sectionName, (char*)first_section_header[i].Name, 8);
-		_stprintf_s(szBuffer, 0x8, TEXT("%hs"), sectionName);
+		//sectionName[8] = 0;
+		_stprintf_s(szBuffer, 0x9, TEXT("%hs"), sectionName);
 		lvItem.pszText = szBuffer;
 		ListView_InsertItem(hListSection, &lvItem);
 		// 文件偏移

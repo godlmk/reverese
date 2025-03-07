@@ -1,0 +1,163 @@
+﻿  loadPE.cpp
+C:\reverse\win32\loadPE\loadPE.cpp(69,2): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(69,2):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(69,2):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, int, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(84,48): warning C4311: “类型强制转换”: 从“HICON”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\loadPE.cpp(84,48): warning C4302: “类型强制转换”: 从“HICON”到“DWORD”截断
+C:\reverse\win32\loadPE\loadPE.cpp(114,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(114,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(114,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(160,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(160,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(160,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(165,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(165,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(165,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(213,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(213,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(213,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(216,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(216,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(216,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(219,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(219,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(219,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(222,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(222,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(222,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(225,4): error C2664: “INT_PTR DialogBoxParamW(HINSTANCE,LPCWSTR,HWND,DLGPROC,LPARAM)”: 无法将参数 4 从“BOOL (__cdecl *)(HWND,UINT,WPARAM,LPARAM)”转换为“DLGPROC”
+      C:\reverse\win32\loadPE\loadPE.cpp(225,4):
+      在匹配目标类型的范围内没有具有该名称的函数
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winuser.h(5070,1):
+      参见“DialogBoxParamW”的声明
+      C:\reverse\win32\loadPE\loadPE.cpp(225,4):
+      尝试匹配参数列表“(HINSTANCE, LPWSTR, HWND, overloaded-function, long)”时
+  
+C:\reverse\win32\loadPE\loadPE.cpp(251,49): warning C4311: “类型强制转换”: 从“LVCOLUMNW *”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\loadPE.cpp(251,49): warning C4302: “类型强制转换”: 从“LVCOLUMNW *”到“DWORD”截断
+C:\reverse\win32\loadPE\loadPE.cpp(257,49): warning C4311: “类型强制转换”: 从“LVCOLUMNW *”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\loadPE.cpp(257,49): warning C4302: “类型强制转换”: 从“LVCOLUMNW *”到“DWORD”截断
+C:\reverse\win32\loadPE\loadPE.cpp(322,49): warning C4311: “类型强制转换”: 从“BYTE *”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\loadPE.cpp(322,49): warning C4302: “类型强制转换”: 从“BYTE *”到“DWORD”截断
+C:\reverse\win32\loadPE\loadPE.cpp(363,16): warning C4244: “初始化”: 从“LRESULT”转换到“DWORD”，可能丢失数据
+C:\reverse\win32\loadPE\loadPE.cpp(375,54): warning C4311: “类型强制转换”: 从“LVITEMW *”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\loadPE.cpp(375,54): warning C4302: “类型强制转换”: 从“LVITEMW *”到“DWORD”截断
+C:\reverse\win32\loadPE\loadPE.cpp(414,33): warning C4477: “swprintf_s”: 格式字符串“%016lX”需要类型“unsigned long”的参数，但可变参数 1 拥有了类型“DWORD_PTR”
+      C:\reverse\win32\loadPE\loadPE.cpp(414,33):
+      请考虑在格式字符串中使用“%llX”
+      C:\reverse\win32\loadPE\loadPE.cpp(414,33):
+      请考虑在格式字符串中使用“%IX”
+      C:\reverse\win32\loadPE\loadPE.cpp(414,33):
+      请考虑在格式字符串中使用“%I64X”
+  
+C:\reverse\win32\loadPE\loadPE.cpp(466,19): warning C4244: “初始化”: 从“ULONGLONG”转换到“DWORD”，可能丢失数据
+C:\reverse\win32\loadPE\loadPE.cpp(478,31): error C2039: "BaseOfData": 不是 "_IMAGE_OPTIONAL_HEADER64" 的成员
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\winnt.h(18497,16):
+      参见“_IMAGE_OPTIONAL_HEADER64”的声明
+  
+  PETools.cpp
+C:\reverse\win32\loadPE\PETools.cpp(24,57): warning C4311: “类型强制转换”: 从“LPVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(24,57): warning C4302: “类型强制转换”: 从“LPVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(24,37): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PIMAGE_NT_HEADERS”
+C:\reverse\win32\loadPE\PETools.cpp(50,10): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\reverse\win32\loadPE\PETools.cpp(64,26): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(69,26): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(69,63): warning C4311: “类型强制转换”: 从“PBYTE”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(69,63): warning C4302: “类型强制转换”: 从“PBYTE”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(69,43): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PIMAGE_NT_HEADERS”
+C:\reverse\win32\loadPE\PETools.cpp(74,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(74,79): warning C4311: “类型强制转换”: 从“const PIMAGE_NT_HEADERS”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(74,79): warning C4302: “类型强制转换”: 从“const PIMAGE_NT_HEADERS”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(77,2): warning C4002: 类函数宏的调用“assert”参数过多
+C:\reverse\win32\loadPE\PETools.cpp(83,30): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(85,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(98,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(134,26): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(140,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(140,79): warning C4311: “类型强制转换”: 从“const PIMAGE_NT_HEADERS”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(140,79): warning C4302: “类型强制转换”: 从“const PIMAGE_NT_HEADERS”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(143,48): warning C4311: “类型强制转换”: 从“const PIMAGE_OPTIONAL_HEADER”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(143,48): warning C4302: “类型强制转换”: 从“const PIMAGE_OPTIONAL_HEADER”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(143,71): warning C4311: “类型强制转换”: 从“IMAGE_OPTIONAL_HEADER64 *”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(143,71): warning C4302: “类型强制转换”: 从“IMAGE_OPTIONAL_HEADER64 *”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(158,30): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(171,26): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(176,26): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(176,63): warning C4311: “类型强制转换”: 从“PBYTE”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(176,63): warning C4302: “类型强制转换”: 从“PBYTE”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(176,43): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PIMAGE_NT_HEADERS”
+C:\reverse\win32\loadPE\PETools.cpp(181,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(181,79): warning C4311: “类型强制转换”: 从“const PIMAGE_NT_HEADERS”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(181,79): warning C4302: “类型强制转换”: 从“const PIMAGE_NT_HEADERS”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(184,2): warning C4002: 类函数宏的调用“assert”参数过多
+C:\reverse\win32\loadPE\PETools.cpp(190,30): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(192,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(205,31): warning C4114: 多次使用同一类型限定符
+C:\reverse\win32\loadPE\PETools.cpp(308,9): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(308,9): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(308,23): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(308,23): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(447,75): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(447,75): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(447,50): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PIMAGE_BASE_RELOCATION”
+C:\reverse\win32\loadPE\PETools.cpp(476,40): warning C4311: “类型强制转换”: 从“PIMAGE_BASE_RELOCATION”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(476,40): warning C4302: “类型强制转换”: 从“PIMAGE_BASE_RELOCATION”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(476,15): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PIMAGE_BASE_RELOCATION”
+C:\reverse\win32\loadPE\PETools.cpp(508,67): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(508,67): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(508,41): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PIMAGE_EXPORT_DIRECTORY”
+C:\reverse\win32\loadPE\PETools.cpp(511,35): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(511,35): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(511,21): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“const char *”
+C:\reverse\win32\loadPE\PETools.cpp(520,31): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(520,31): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(520,22): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PDWORD”
+C:\reverse\win32\loadPE\PETools.cpp(527,32): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(527,32): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(527,24): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PWORD”
+C:\reverse\win32\loadPE\PETools.cpp(537,40): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(537,40): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(537,26): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“const char *”
+C:\reverse\win32\loadPE\PETools.cpp(543,31): warning C4311: “类型强制转换”: 从“PVOID”到“DWORD”的指针截断
+C:\reverse\win32\loadPE\PETools.cpp(543,31): warning C4302: “类型强制转换”: 从“PVOID”到“DWORD”截断
+C:\reverse\win32\loadPE\PETools.cpp(543,22): warning C4312: “类型强制转换”: 从“unsigned long”转换到更大的“PDWORD”

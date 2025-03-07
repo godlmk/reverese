@@ -8,9 +8,10 @@
 #include <print>
 #include <stdio.h>
 #include <cassert>
-int Align(int origin, int alignment)
+
+DWORD Align(int origin, int alignment)
 {
-	return (origin / alignment - 1) * alignment;
+	return ((origin + alignment - 1) / alignment) * alignment;
 }
 
 PIMAGE_DOS_HEADER GetDosHeader(LPVOID pImageBuffer)
@@ -56,6 +57,33 @@ unsigned char* ReadFileBuffer(const char* filename) {
 	}
 	fclose(fp);
 	return buffer;
+}
+DWORD ReadFileBuffer(LPCTSTR filename, void** pBuffer) {
+	FILE* fp = fopen(filename, "rb");
+	if (fp == NULL)
+	{
+		std::println("fread failed, because:");
+		exit(-1);
+	}
+	fseek(fp, 0, SEEK_END);
+	long bytes = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	unsigned char* buffer = (unsigned char*)malloc(bytes);
+	if (!buffer) {
+		std::println("malloc failed, because:");
+		fclose(fp);
+		exit(-1);
+	}
+	int ret = fread(buffer, bytes, 1, fp);
+	if (ret != 1) {
+		std::println("fread failed, because:");
+		free(buffer);
+		fclose(fp);
+		exit(-1);
+	}
+	fclose(fp);
+	*pBuffer = buffer;
+	return bytes;
 }
 
 PBYTE ReadMemoryImage(const char* filename) {
